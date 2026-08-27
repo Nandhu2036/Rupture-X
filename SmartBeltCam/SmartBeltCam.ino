@@ -107,6 +107,11 @@ void setup() {
   setupLedFlash();
 #endif
 
+  // Status Indicator (Built-in Red LED on AI Thinker is usually GPIO 33, active LOW)
+  const int STATUS_LED = 33;
+  pinMode(STATUS_LED, OUTPUT);
+  digitalWrite(STATUS_LED, HIGH); // Start OFF
+
   // Force Static IP so Dashboard always knows where the camera is
   IPAddress local_IP(192, 168, 4, 2);
   IPAddress gateway(192, 168, 4, 1);
@@ -117,10 +122,16 @@ void setup() {
   WiFi.setSleep(false);
 
   Serial.print("WiFi connecting");
+  bool ledState = false;
   while (WiFi.status() != WL_CONNECTED) {
-    delay(500);
+    delay(250);
     Serial.print(".");
+    ledState = !ledState;
+    digitalWrite(STATUS_LED, ledState ? LOW : HIGH); // Rapid blink while searching
   }
+  
+  digitalWrite(STATUS_LED, LOW); // SOLID RED = Successfully Connected!
+  
   Serial.println("");
   Serial.println("WiFi connected");
 
