@@ -9,7 +9,6 @@ export const HeroStatus: React.FC = () => {
 
   const isCritical = ruptureRisk >= 80;
   const isWarning = ruptureRisk >= 30 && ruptureRisk < 80;
-  const isHealthy = !isCritical && !isWarning;
 
   let statusText = 'System Healthy';
   let subText = 'No immediate belt rupture detected';

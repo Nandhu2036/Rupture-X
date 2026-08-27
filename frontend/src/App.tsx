@@ -1,4 +1,3 @@
-import React from 'react';
 import { SimulationProvider } from './context/SimulationContext';
 import { Shell } from './components/layout/Shell';
 import { HeroStatus } from './components/dashboard/HeroStatus';
