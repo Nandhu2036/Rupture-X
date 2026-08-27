@@ -1,41 +1,46 @@
 import React from 'react';
-import { LayoutDashboard, Activity, Eye, AlertTriangle, Settings } from 'lucide-react';
+import { LayoutDashboard, Activity, Eye, ShieldAlert, Settings } from 'lucide-react';
 import { clsx } from 'clsx';
 import { twMerge } from 'tailwind-merge';
 
 const navItems = [
-  { icon: LayoutDashboard, label: 'Overview', active: true },
-  { icon: Activity, label: 'Kinematic Analysis' },
-  { icon: Eye, label: 'Vision AI' },
-  { icon: AlertTriangle, label: 'Alerts' },
-  { icon: Settings, label: 'Settings' },
+  { icon: LayoutDashboard, label: 'SYSTEM OVERVIEW', active: true },
+  { icon: Activity, label: 'KINEMATICS' },
+  { icon: Eye, label: 'VISION MATRIX' },
+  { icon: ShieldAlert, label: 'EVENT LOGS' },
+  { icon: Settings, label: 'CONFIGURATION' },
 ];
 
 export const Sidebar: React.FC = () => {
   return (
-    <aside className="w-64 bg-industrial-900 h-screen flex flex-col hidden md:flex border-r border-white/5">
-      <div className="p-8 pb-4">
-        <h1 className="text-2xl font-bold tracking-tight text-industrial-100">RUPTURE-X</h1>
-        <p className="text-xs text-industrial-400 mt-2 font-medium">
-          Edge AI Maintenance
-        </p>
+    <aside className="w-16 lg:w-64 bg-industrial-950 h-screen flex flex-col hidden md:flex border-r border-industrial-800 shrink-0">
+      <div className="p-4 lg:p-6 pb-4 flex items-center justify-center lg:justify-start">
+        <div className="w-8 h-8 bg-industrial-800 rounded border border-industrial-700 flex items-center justify-center lg:hidden">
+          <span className="text-industrial-100 font-bold text-xs">RX</span>
+        </div>
+        <div className="hidden lg:block">
+          <h1 className="text-lg font-mono font-bold tracking-widest text-industrial-100">RUPTURE-X</h1>
+          <p className="text-[10px] font-mono text-industrial-500 mt-1 uppercase tracking-widest">
+            Edge AI Maintenance
+          </p>
+        </div>
       </div>
 
-      <nav className="flex-1 px-4 mt-8 space-y-2 overflow-y-auto">
+      <nav className="flex-1 px-3 mt-8 space-y-1 overflow-y-auto">
         {navItems.map((item, idx) => (
           <button
             key={idx}
             className={twMerge(
               clsx(
-                "w-full flex items-center space-x-3 px-4 py-3 rounded-2xl text-sm font-medium transition-all",
+                "w-full flex items-center lg:space-x-3 px-3 py-3 lg:px-4 lg:py-3 rounded md:justify-center lg:justify-start text-xs font-mono tracking-widest transition-all",
                 item.active 
-                  ? "bg-industrial-800 text-industrial-100 shadow-sm" 
-                  : "text-industrial-400 hover:text-industrial-100 hover:bg-industrial-800/50"
+                  ? "bg-industrial-900 text-status-cyan border border-industrial-800" 
+                  : "text-industrial-500 hover:text-industrial-300 hover:bg-industrial-900/50 border border-transparent"
               )
             )}
           >
-            <item.icon className={clsx("w-5 h-5", item.active ? "text-status-blue" : "")} />
-            <span>{item.label}</span>
+            <item.icon className="w-4 h-4 shrink-0" />
+            <span className="hidden lg:block">{item.label}</span>
           </button>
         ))}
       </nav>

@@ -1,5 +1,4 @@
 import React from 'react';
-import { Activity, ShieldAlert, ActivitySquare, Thermometer } from 'lucide-react';
 import { useSimulation } from '../../context/SimulationContext';
 import { clsx } from 'clsx';
 
@@ -10,11 +9,11 @@ export const MetricCards: React.FC = () => {
     if (isHigherWorse) {
       if (value >= thresholdCrit) return { label: 'CRITICAL', color: 'text-status-red' };
       if (value >= thresholdWarn) return { label: 'WARNING', color: 'text-status-amber' };
-      return { label: 'NORMAL', color: 'text-status-green' };
+      return { label: 'NORMAL', color: 'text-status-cyan' };
     } else {
       if (value <= thresholdCrit) return { label: 'CRITICAL', color: 'text-status-red' };
       if (value <= thresholdWarn) return { label: 'WARNING', color: 'text-status-amber' };
-      return { label: 'HEALTHY', color: 'text-status-green' };
+      return { label: 'HEALTHY', color: 'text-status-cyan' };
     }
   };
 
@@ -23,87 +22,32 @@ export const MetricCards: React.FC = () => {
   const vibStatus = getStatus(vibration, 30, 45);
   const tempStatus = getStatus(temperature, 75, 90);
 
+  const metrics = [
+    { title: 'SYSTEM HEALTH', value: beltHealth.toFixed(1), unit: '%', status: healthStatus },
+    { title: 'RUPTURE RISK', value: ruptureRisk.toFixed(1), unit: '%', status: riskStatus },
+    { title: 'KINEMATIC VIB', value: vibration.toFixed(1), unit: 'MM/S', status: vibStatus },
+    { title: 'THERMAL LOAD', value: temperature.toFixed(1), unit: '°C', status: tempStatus }
+  ];
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      {/* Belt Health */}
-      <div className="industrial-card p-6 relative overflow-hidden">
-        <div className="flex justify-between items-start mb-6">
-          <div className="flex items-center space-x-3 text-industrial-400">
-            <div className="p-2 bg-black rounded-xl">
-              <Activity className="w-5 h-5 text-status-blue" />
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-[1px] bg-industrial-800 border border-industrial-800 rounded-lg overflow-hidden">
+      {metrics.map((m, idx) => (
+        <div key={idx} className="bg-industrial-950 p-5 flex flex-col justify-between h-32 hover:bg-industrial-900 transition-colors">
+          <div className="flex justify-between items-center mb-2">
+            <h3 className="text-xxs font-mono text-industrial-400 uppercase tracking-widest">{m.title}</h3>
+            <div className="flex items-center space-x-1.5">
+              <span className={clsx("w-1.5 h-1.5 rounded-full", m.status.color.replace('text-', 'bg-'))}></span>
+              <span className={clsx("text-xxs font-mono tracking-wider", m.status.color)}>{m.status.label}</span>
             </div>
-            <h3 className="text-sm font-medium">Belt Health</h3>
+          </div>
+          <div className="flex items-baseline space-x-1.5 mt-auto">
+            <span className={clsx("text-4xl font-semibold tracking-tight", m.status.color === 'text-status-red' ? 'text-status-red' : 'text-industrial-100')}>
+              {m.value}
+            </span>
+            <span className="text-xs font-mono text-industrial-500 uppercase">{m.unit}</span>
           </div>
         </div>
-        <div className="flex items-baseline space-x-2">
-          <span className="text-4xl font-semibold tracking-tight">{beltHealth.toFixed(1)}</span>
-          <span className="text-xl text-industrial-400">%</span>
-        </div>
-        <div className="mt-6 flex items-center space-x-2">
-          <span className={clsx("w-2 h-2 rounded-full", healthStatus.color.replace('text-', 'bg-'))}></span>
-          <span className={clsx("text-xs font-medium", healthStatus.color)}>{healthStatus.label}</span>
-        </div>
-      </div>
-
-      {/* Rupture Risk */}
-      <div className="industrial-card p-6 relative overflow-hidden">
-        <div className="flex justify-between items-start mb-6">
-          <div className="flex items-center space-x-3 text-industrial-400">
-            <div className="p-2 bg-black rounded-xl">
-              <ShieldAlert className="w-5 h-5 text-status-amber" />
-            </div>
-            <h3 className="text-sm font-medium">Rupture Risk</h3>
-          </div>
-        </div>
-        <div className="flex items-baseline space-x-2">
-          <span className="text-4xl font-semibold tracking-tight">{ruptureRisk.toFixed(1)}</span>
-          <span className="text-xl text-industrial-400">%</span>
-        </div>
-        <div className="mt-6 flex items-center space-x-2">
-          <span className={clsx("w-2 h-2 rounded-full", riskStatus.color.replace('text-', 'bg-'))}></span>
-          <span className={clsx("text-xs font-medium", riskStatus.color)}>{riskStatus.label}</span>
-        </div>
-      </div>
-
-      {/* Motor Vibration */}
-      <div className="industrial-card p-6 relative overflow-hidden">
-        <div className="flex justify-between items-start mb-6">
-          <div className="flex items-center space-x-3 text-industrial-400">
-            <div className="p-2 bg-black rounded-xl">
-              <ActivitySquare className="w-5 h-5 text-status-blue" />
-            </div>
-            <h3 className="text-sm font-medium">Vibration</h3>
-          </div>
-        </div>
-        <div className="flex items-baseline space-x-2">
-          <span className="text-4xl font-semibold tracking-tight">{vibration.toFixed(1)}</span>
-          <span className="text-xl text-industrial-400">mm/s</span>
-        </div>
-        <div className="mt-6 flex items-center space-x-2">
-          <span className={clsx("w-2 h-2 rounded-full", vibStatus.color.replace('text-', 'bg-'))}></span>
-          <span className={clsx("text-xs font-medium", vibStatus.color)}>{vibStatus.label}</span>
-        </div>
-      </div>
-
-      {/* Temperature */}
-      <div className="industrial-card p-6 relative overflow-hidden">
-        <div className="flex justify-between items-start mb-6">
-          <div className="flex items-center space-x-3 text-industrial-400">
-            <div className="p-2 bg-black rounded-xl border border-white/5 shadow-sm">
-              <Thermometer className="w-5 h-5 text-status-red" />
-            </div>
-            <h3 className="text-sm font-medium">Temperature</h3>
-          </div>
-        </div>
-        <div className="flex items-baseline space-x-2">
-          <span className="text-4xl font-semibold tracking-tight">{temperature.toFixed(1)}</span>
-          <span className="text-xl text-industrial-400">°C</span>
-        </div>
-        <div className="mt-6 flex items-center space-x-2">
-          <span className={clsx("w-2 h-2 rounded-full", tempStatus.color.replace('text-', 'bg-'))}></span>
-          <span className={clsx("text-xs font-medium", tempStatus.color)}>{tempStatus.label}</span>
-        </div>
-      </div>
+      ))}
     </div>
   );
 };

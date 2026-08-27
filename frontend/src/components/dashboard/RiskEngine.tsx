@@ -1,6 +1,5 @@
 import React from 'react';
 import { useSimulation } from '../../context/SimulationContext';
-import { BrainCircuit, Eye, ActivitySquare, Thermometer } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export const RiskEngine: React.FC = () => {
@@ -10,55 +9,81 @@ export const RiskEngine: React.FC = () => {
   
   const isCritical = ruptureRisk > 80;
   const isWarning = ruptureRisk > 30 && !isCritical;
+  
+  const statusColor = isCritical ? 'text-status-red' : (isWarning ? 'text-status-amber' : 'text-status-cyan');
+  const bgColor = isCritical ? 'bg-status-red/10' : (isWarning ? 'bg-status-amber/10' : 'bg-status-cyan/5');
+  const borderColor = isCritical ? 'border-status-red/30' : (isWarning ? 'border-status-amber/30' : 'border-status-cyan/20');
 
   return (
-    <div className="industrial-card p-8 mb-8 flex flex-col justify-center items-center relative">
-      <div className="text-center mb-8">
-        <h2 className="text-sm font-semibold tracking-wide text-industrial-400 mb-2 uppercase">Risk Fusion Engine</h2>
-        <div className="flex items-center justify-center space-x-3">
-          <BrainCircuit className="w-8 h-8 text-status-blue" />
-          <span className="text-2xl font-semibold tracking-tight">AI Multi-Modal Analysis</span>
+    <div className="industrial-panel h-full flex flex-col relative group overflow-hidden">
+      <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-transparent via-industrial-700 to-transparent"></div>
+      
+      <div className="p-5 flex items-center justify-between border-b border-industrial-800/50 bg-industrial-950/30">
+        <h2 className="text-xs font-mono font-semibold tracking-widest text-industrial-300 uppercase">Multi-Modal Risk Fusion</h2>
+        <div className="flex items-center space-x-2">
+          <div className="w-1.5 h-1.5 bg-status-cyan rounded-full animate-pulse"></div>
+          <span className="text-xxs font-mono text-status-cyan tracking-widest">ACTIVE</span>
         </div>
       </div>
 
-      <div className="flex w-full justify-around max-w-lg mb-12">
-        <div className="flex flex-col items-center space-y-2">
-           <div className="w-14 h-14 bg-black rounded-2xl flex items-center justify-center shadow-sm border border-white/5">
-             <Eye className="w-6 h-6 text-status-blue" />
-           </div>
-           <span className="text-sm font-medium">Vision</span>
-           <span className="text-xs text-industrial-400">{visionConfidence.toFixed(1)}%</span>
+      <div className="flex-1 p-6 flex flex-col justify-center">
+        {/* Network Visualization */}
+        <div className="flex justify-between items-center w-full max-w-sm mx-auto relative mb-10">
+          
+          {/* Data Lines */}
+          <div className="absolute left-[50px] top-4 right-1/2 h-px bg-gradient-to-r from-industrial-600 to-industrial-400"></div>
+          <div className="absolute left-[50px] top-1/2 right-1/2 h-px bg-gradient-to-r from-industrial-600 to-industrial-400 -translate-y-1/2"></div>
+          <div className="absolute left-[50px] bottom-4 right-1/2 h-px bg-gradient-to-r from-industrial-600 to-industrial-400"></div>
+          
+          <div className="absolute left-1/2 top-4 bottom-4 w-px bg-gradient-to-b from-industrial-400 via-status-cyan/50 to-industrial-400"></div>
+          <div className="absolute left-1/2 top-1/2 right-[50px] h-px bg-gradient-to-r from-status-cyan/50 to-industrial-600 -translate-y-1/2"></div>
+          
+          {/* Input Nodes */}
+          <div className="flex flex-col justify-between h-40 z-10 w-24">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-mono text-industrial-400">VISION</span>
+              <span className="text-sm font-mono text-industrial-100">{visionConfidence.toFixed(1)}<span className="text-industrial-500">%</span></span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-mono text-industrial-400">KINEMATIC</span>
+              <span className="text-sm font-mono text-industrial-100">{kinematicAnomaly.toFixed(1)}<span className="text-industrial-500">%</span></span>
+            </div>
+            <div className="flex flex-col">
+              <span className="text-[10px] font-mono text-industrial-400">THERMAL</span>
+              <span className="text-sm font-mono text-industrial-100">{temperature.toFixed(1)}<span className="text-industrial-500">°C</span></span>
+            </div>
+          </div>
+          
+          {/* Output Node */}
+          <div className="z-10 bg-industrial-950 p-2 rounded-lg border border-industrial-800">
+            <div className={clsx("w-16 h-16 rounded flex items-center justify-center border", bgColor, borderColor)}>
+              <span className={clsx("text-xl font-bold tracking-tight", statusColor)}>
+                {ruptureRisk.toFixed(0)}
+              </span>
+            </div>
+          </div>
         </div>
         
-        <div className="flex flex-col items-center space-y-2">
-           <div className="w-14 h-14 bg-black rounded-2xl flex items-center justify-center shadow-sm border border-white/5">
-             <ActivitySquare className="w-6 h-6 text-status-amber" />
+        {/* Risk Bar */}
+        <div className="w-full">
+           <div className="flex justify-between items-end mb-2">
+             <span className="text-xs font-mono tracking-wider text-industrial-300">PREDICTIVE RISK SCORE</span>
+             <span className={clsx("text-xs font-mono font-semibold tracking-wider", statusColor)}>
+               {isCritical ? 'CRITICAL' : (isWarning ? 'WARNING' : 'NORMAL')}
+             </span>
            </div>
-           <span className="text-sm font-medium">Kinematic</span>
-           <span className="text-xs text-industrial-400">{kinematicAnomaly.toFixed(1)}%</span>
+           <div className="w-full h-1.5 bg-industrial-800 rounded-full overflow-hidden">
+             <div 
+               className={clsx("h-full transition-all duration-1000", isCritical ? 'bg-status-red' : (isWarning ? 'bg-status-amber' : 'bg-status-cyan'))} 
+               style={{ width: `${Math.min(100, Math.max(0, ruptureRisk))}%` }}
+             ></div>
+           </div>
+           <div className="flex justify-between mt-2 text-[9px] font-mono text-industrial-600">
+             <span>0.0%</span>
+             <span>100.0%</span>
+           </div>
         </div>
 
-        <div className="flex flex-col items-center space-y-2">
-           <div className="w-14 h-14 bg-black rounded-2xl flex items-center justify-center shadow-sm border border-white/5">
-             <Thermometer className="w-6 h-6 text-status-red" />
-           </div>
-           <span className="text-sm font-medium">Thermal</span>
-           <span className="text-xs text-industrial-400">{temperature.toFixed(1)}°C</span>
-        </div>
-      </div>
-
-      <div className="bg-black/40 border border-white/5 rounded-3xl p-8 text-center w-full max-w-sm">
-        <h3 className="text-sm font-medium text-industrial-400 mb-2">Calculated Rupture Risk</h3>
-        <div className={clsx("text-6xl font-bold tracking-tight mb-2", 
-          isCritical ? "text-status-red" : (isWarning ? "text-status-amber" : "text-industrial-100")
-        )}>
-          {ruptureRisk.toFixed(1)}%
-        </div>
-        <div className={clsx("text-sm font-semibold mt-2",
-           isCritical ? "text-status-red" : (isWarning ? "text-status-amber" : "text-status-green")
-        )}>
-          {isCritical ? 'Critical Condition' : (isWarning ? 'Elevated Alert' : 'Normal Operation')}
-        </div>
       </div>
     </div>
   );

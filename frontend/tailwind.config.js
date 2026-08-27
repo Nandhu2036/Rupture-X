@@ -8,23 +8,30 @@ export default {
     extend: {
       colors: {
         industrial: {
-          900: '#000000', // Pure black background
-          800: '#1C1C1E', // Apple dark mode surface
-          700: '#2C2C2E', // Secondary Surface
-          600: '#3A3A3C', // Borders
-          400: '#86868B', // Soft text (Apple style gray)
-          100: '#F5F5F7', // Main Text (Apple style white)
+          950: '#070708',
+          900: '#0c0c0e',
+          800: '#131416',
+          700: '#1d1e21',
+          600: '#2c2e33',
+          500: '#40434b',
+          400: '#737780',
+          300: '#a0a3ac',
+          100: '#eaebed',
         },
         status: {
-          green: '#32D74B', // iOS Green
-          amber: '#FF9F0A', // iOS Orange
-          red: '#FF453A',   // iOS Red
-          blue: '#0A84FF',  // iOS Blue
+          green: '#10b981', 
+          amber: '#f59e0b',
+          red: '#ef4444',
+          blue: '#3b82f6',
+          cyan: '#06b6d4',
         }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'],
-        mono: ['JetBrains Mono', 'monospace'],
+        sans: ['Inter', 'system-ui', 'sans-serif'],
+        mono: ['"IBM Plex Mono"', '"JetBrains Mono"', 'monospace'],
+      },
+      fontSize: {
+        'xxs': '0.65rem',
       }
     },
   },
