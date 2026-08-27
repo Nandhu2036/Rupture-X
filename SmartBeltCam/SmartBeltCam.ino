@@ -112,11 +112,7 @@ void setup() {
   pinMode(STATUS_LED, OUTPUT);
   digitalWrite(STATUS_LED, HIGH); // Start OFF
 
-  // Force Static IP so Dashboard always knows where the camera is
-  IPAddress local_IP(192, 168, 4, 2);
-  IPAddress gateway(192, 168, 4, 1);
-  IPAddress subnet(255, 255, 255, 0);
-  WiFi.config(local_IP, gateway, subnet);
+  // (Removed forced static IP to allow natural DHCP connection)
 
   WiFi.begin(ssid, password);
   WiFi.setSleep(false);

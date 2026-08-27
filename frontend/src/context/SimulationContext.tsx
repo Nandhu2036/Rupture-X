@@ -87,10 +87,8 @@ export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }
         const v_raw = parseInt(data.v) || 0;
         const statusMsg = data.s || '';
         
-        // Temperature Smoothing Filter (Removes random jumping from analog noise)
-        // Baseline 30C, up to 70C for anomalies
-        const rawTempC = 30 + (t_raw / 4095.0) * 40;
-        lastTemp = (lastTemp * 0.8) + (rawTempC * 0.2); // Low-pass filter for extreme stability
+        // Temperature locked to exactly 30°C for the physical demo
+        lastTemp = 30.0;
         
         // Fast Kinematic Reaction
         const vib = (v_raw === 1) ? 35.0 : p * 10;
