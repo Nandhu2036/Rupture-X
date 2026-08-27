@@ -83,7 +83,6 @@ export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }
         const data = await response.json();
         
         const p = parseFloat(data.p) || 0;
-        const t_raw = parseInt(data.t) || 0;
         const v_raw = parseInt(data.v) || 0;
         const statusMsg = data.s || '';
         
