@@ -2,11 +2,6 @@ import React from 'react';
 import { Activity, ShieldAlert, ActivitySquare, Thermometer } from 'lucide-react';
 import { useSimulation } from '../../context/SimulationContext';
 import { clsx } from 'clsx';
-import { ResponsiveContainer, AreaChart, Area } from 'recharts';
-
-const miniChartData = [
-  { value: 40 }, { value: 42 }, { value: 38 }, { value: 45 }, { value: 41 }, { value: 50 }, { value: 48 }, { value: 55 }
-];
 
 export const MetricCards: React.FC = () => {
   const { beltHealth, ruptureRisk, vibration, temperature } = useSimulation();
