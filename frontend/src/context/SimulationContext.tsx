@@ -92,8 +92,8 @@ export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }
         // Fast Kinematic Reaction
         const vib = (v_raw === 1) ? 35.0 : p * 10;
         
-        // Sensor Fusion: Trigger Vision AI detection if physical sensors detect anomaly!
-        const hasAnomaly = (lastTemp > 50 || vib > 30 || statusMsg.includes('WARNING') || statusMsg.includes('CRITICAL'));
+        // Sensor Fusion: Trigger Vision AI detection ONLY if kinematic vibration spikes!
+        const hasAnomaly = (vib > 30 || statusMsg.includes('CRITICAL'));
         const risk = hasAnomaly ? 85 : 12;
         const health = 100 - risk;
         
