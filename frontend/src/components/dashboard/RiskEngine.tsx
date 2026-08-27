@@ -1,10 +1,10 @@
 import React from 'react';
 import { useSimulation } from '../../context/SimulationContext';
-import { BrainCircuit, Eye, ActivitySquare } from 'lucide-react';
+import { BrainCircuit, Eye, ActivitySquare, Thermometer } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export const RiskEngine: React.FC = () => {
-  const { visionConfidence, jointInterval, ruptureRisk } = useSimulation();
+  const { visionConfidence, jointInterval, ruptureRisk, temperature } = useSimulation();
 
   const kinematicAnomaly = Math.min(100, Math.max(0, ((jointInterval - 2.8) / 2.8) * 100 * 10));
   
@@ -21,7 +21,7 @@ export const RiskEngine: React.FC = () => {
         </div>
       </div>
 
-      <div className="flex w-full justify-around max-w-sm mb-12">
+      <div className="flex w-full justify-around max-w-lg mb-12">
         <div className="flex flex-col items-center space-y-2">
            <div className="w-14 h-14 bg-black rounded-2xl flex items-center justify-center shadow-sm border border-white/5">
              <Eye className="w-6 h-6 text-status-blue" />
@@ -36,6 +36,14 @@ export const RiskEngine: React.FC = () => {
            </div>
            <span className="text-sm font-medium">Kinematic</span>
            <span className="text-xs text-industrial-400">{kinematicAnomaly.toFixed(1)}%</span>
+        </div>
+
+        <div className="flex flex-col items-center space-y-2">
+           <div className="w-14 h-14 bg-black rounded-2xl flex items-center justify-center shadow-sm border border-white/5">
+             <Thermometer className="w-6 h-6 text-status-red" />
+           </div>
+           <span className="text-sm font-medium">Thermal</span>
+           <span className="text-xs text-industrial-400">{temperature.toFixed(1)}°C</span>
         </div>
       </div>
 

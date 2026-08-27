@@ -1,5 +1,5 @@
 import React from 'react';
-import { Activity, ShieldAlert, ActivitySquare } from 'lucide-react';
+import { Activity, ShieldAlert, ActivitySquare, Thermometer } from 'lucide-react';
 import { useSimulation } from '../../context/SimulationContext';
 import { clsx } from 'clsx';
 import { ResponsiveContainer, AreaChart, Area } from 'recharts';
@@ -9,7 +9,7 @@ const miniChartData = [
 ];
 
 export const MetricCards: React.FC = () => {
-  const { beltHealth, ruptureRisk, vibration } = useSimulation();
+  const { beltHealth, ruptureRisk, vibration, temperature } = useSimulation();
 
   const getStatus = (value: number, thresholdWarn: number, thresholdCrit: number, isHigherWorse = true) => {
     if (isHigherWorse) {
@@ -26,9 +26,10 @@ export const MetricCards: React.FC = () => {
   const healthStatus = getStatus(beltHealth, 85, 60, false);
   const riskStatus = getStatus(ruptureRisk, 30, 80);
   const vibStatus = getStatus(vibration, 30, 45);
+  const tempStatus = getStatus(temperature, 75, 90);
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+    <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       {/* Belt Health */}
       <div className="industrial-card p-6 relative overflow-hidden">
         <div className="flex justify-between items-start mb-6">
@@ -76,7 +77,7 @@ export const MetricCards: React.FC = () => {
             <div className="p-2 bg-black rounded-xl">
               <ActivitySquare className="w-5 h-5 text-status-blue" />
             </div>
-            <h3 className="text-sm font-medium">Motor Vibration</h3>
+            <h3 className="text-sm font-medium">Vibration</h3>
           </div>
         </div>
         <div className="flex items-baseline space-x-2">
@@ -87,18 +88,25 @@ export const MetricCards: React.FC = () => {
           <span className={clsx("w-2 h-2 rounded-full", vibStatus.color.replace('text-', 'bg-'))}></span>
           <span className={clsx("text-xs font-medium", vibStatus.color)}>{vibStatus.label}</span>
         </div>
-        <div className="h-10 mt-2 w-full opacity-70">
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={miniChartData}>
-              <defs>
-                <linearGradient id="colorVib" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#0A84FF" stopOpacity={0.3}/>
-                  <stop offset="95%" stopColor="#0A84FF" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <Area type="monotone" dataKey="value" stroke="#0A84FF" fillOpacity={1} fill="url(#colorVib)" strokeWidth={2} isAnimationActive={false} />
-            </AreaChart>
-          </ResponsiveContainer>
+      </div>
+
+      {/* Temperature */}
+      <div className="industrial-card p-6 relative overflow-hidden">
+        <div className="flex justify-between items-start mb-6">
+          <div className="flex items-center space-x-3 text-industrial-400">
+            <div className="p-2 bg-black rounded-xl border border-white/5 shadow-sm">
+              <Thermometer className="w-5 h-5 text-status-red" />
+            </div>
+            <h3 className="text-sm font-medium">Temperature</h3>
+          </div>
+        </div>
+        <div className="flex items-baseline space-x-2">
+          <span className="text-4xl font-semibold tracking-tight">{temperature.toFixed(1)}</span>
+          <span className="text-xl text-industrial-400">°C</span>
+        </div>
+        <div className="mt-6 flex items-center space-x-2">
+          <span className={clsx("w-2 h-2 rounded-full", tempStatus.color.replace('text-', 'bg-'))}></span>
+          <span className={clsx("text-xs font-medium", tempStatus.color)}>{tempStatus.label}</span>
         </div>
       </div>
     </div>
