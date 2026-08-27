@@ -67,60 +67,57 @@ export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }
   const [isLiveMode, setIsLiveMode] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
   
-  // WebSocket connection for LIVE data
+  // Data connection for LIVE mode (polling the ESP32)
   useEffect(() => {
     if (!isLiveMode) return;
     
-    // Change this IP to your ESP32's IP address on your home WiFi network
-    // For example: 'ws://192.168.1.100:81'
-    const wsUrl = import.meta.env.VITE_ESP32_WS_URL || 'ws://localhost:8080';
-    const ws = new WebSocket(wsUrl);
+    setWsConnected(true); // Treat as connected for UI
     
-    ws.onopen = () => {
-      setWsConnected(true);
-      setState(prev => ({
-        ...prev,
-        logs: [{ id: Math.random().toString(), message: 'Connected to Edge Node WebSocket', timestamp: new Date() }, ...prev.logs]
-      }));
-    };
+    // Fallback IP if not specified in .env
+    const baseIp = import.meta.env.VITE_ESP32_WS_URL ? import.meta.env.VITE_ESP32_WS_URL.replace('ws://', 'http://').replace(':81', '') : 'http://192.168.4.1';
     
-    ws.onmessage = (event) => {
+    const interval = setInterval(async () => {
       try {
-        const data = JSON.parse(event.data);
-        // Expected data format:
-        // { type: 'TELEMETRY', payload: { vibration: 18.2, temperature: 62.1, jointInterval: 2.85, ... } }
-        // { type: 'VISION', payload: { confidence: 95.0, defects: 0, frameData: 'base64...' } }
-        // { type: 'ALERT', payload: { level: 'WARNING', message: '...' } }
+        const response = await fetch(`${baseIp}/data`);
+        if (!response.ok) return;
+        const data = await response.json();
         
-        setState(prev => {
-          if (data.type === 'TELEMETRY' && data.payload) {
-             return { ...prev, ...data.payload };
-          } else if (data.type === 'VISION' && data.payload) {
-             return { ...prev, visionConfidence: data.payload.confidence, visionDefects: data.payload.defects };
-          } else if (data.type === 'ALERT' && data.payload) {
-             return {
-               ...prev,
-               alerts: [{ id: Math.random().toString(), type: data.payload.level, message: data.payload.message, timestamp: new Date() }, ...prev.alerts],
-               logs: [{ id: Math.random().toString(), message: `ALERT RECEIVED: ${data.payload.message}`, timestamp: new Date() }, ...prev.logs]
-             }
-          }
-          return prev;
-        });
-      } catch (e) {
-        console.error("Failed to parse WebSocket message", e);
+        // Data format from SmartBelt.ino: {"p": 2.5, "t": 4095, "s": "WARNING: THERMAL OVERLOAD"}
+        const p = parseFloat(data.p) || 2.8;
+        const t_raw = parseInt(data.t) || 0;
+        const statusMsg = data.s || '';
+        
+        // Convert raw temp (0-4095) to celsius approximation (let's map 0-4095 to 20C-90C)
+        const tempC = 20 + (t_raw / 4095.0) * 70;
+        
+        // Calculate fake vibration based on kinematic period anomaly
+        const vib = 15 + Math.abs(p - 2.8) * 50;
+        
+        // Calculate Health and Risk
+        const risk = (t_raw > 2500 || statusMsg.includes('WARNING')) ? 85 : 15;
+        const health = 100 - risk;
+        
+        setState(s => ({
+          ...s,
+          jointInterval: p,
+          temperature: tempC,
+          vibration: vib,
+          beltHealth: health,
+          ruptureRisk: risk,
+          alerts: statusMsg !== "SYSTEM OPTIMAL" ? [
+             { id: Date.now().toString(), type: 'CRITICAL', message: statusMsg, timestamp: new Date() },
+             ...s.alerts
+          ].slice(0, 5) : s.alerts
+        }));
+
+      } catch (err) {
+        console.error("HTTP Polling error:", err);
       }
-    };
-    
-    ws.onclose = () => {
-      setWsConnected(false);
-      setState(prev => ({
-        ...prev,
-        logs: [{ id: Math.random().toString(), message: 'WebSocket connection lost', timestamp: new Date() }, ...prev.logs]
-      }));
-    };
-    
+    }, 500);
+
     return () => {
-      ws.close();
+      clearInterval(interval);
+      setWsConnected(false);
     };
   }, [isLiveMode]);
 
@@ -172,23 +169,21 @@ export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }
 
   // Simulate subtle noise in values over time if demo mode is on
   useEffect(() => {
-    if (!state.isDemoMode) return;
+    if (!state.isDemoMode || state.mode !== 'NORMAL' || isLiveMode) return;
     
     const interval = setInterval(() => {
-      setState(prev => {
-        if (prev.mode !== 'NORMAL') return prev; // Less noise during specific failure modes for clarity
-        
-        return {
-          ...prev,
-          vibration: 18.0 + Math.random() * 0.8,
-          temperature: 61.5 + Math.random() * 0.6,
-          jointInterval: 2.83 + Math.random() * 0.02,
-        };
-      });
+      setState(prev => ({
+        ...prev,
+        vibration: Math.max(15, Math.min(25, prev.vibration + (Math.random() - 0.5) * 2)),
+        temperature: Math.max(55, Math.min(65, prev.temperature + (Math.random() - 0.5) * 0.5)),
+        beltHealth: Math.max(92, Math.min(98, prev.beltHealth + (Math.random() - 0.5) * 0.2)),
+        ruptureRisk: Math.max(2, Math.min(8, prev.ruptureRisk + (Math.random() - 0.5) * 0.5)),
+        visionConfidence: Math.max(94, Math.min(99, prev.visionConfidence + (Math.random() - 0.5) * 1)),
+      }));
     }, 2000);
     
     return () => clearInterval(interval);
-  }, [state.isDemoMode, state.mode]);
+  }, [state.isDemoMode, state.mode, isLiveMode]);
 
   const toggleLiveMode = () => {
     setIsLiveMode(prev => {
@@ -209,6 +204,8 @@ export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }
 
 export const useSimulation = () => {
   const context = useContext(SimulationContext);
-  if (!context) throw new Error('useSimulation must be used within SimulationProvider');
+  if (context === undefined) {
+    throw new Error('useSimulation must be used within a SimulationProvider');
+  }
   return context;
 };
