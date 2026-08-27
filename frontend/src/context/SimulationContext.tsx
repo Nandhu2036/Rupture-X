@@ -56,7 +56,7 @@ const SimulationContext = createContext<SimulationContextType | undefined>(undef
 
 export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }) => {
   const [state, setState] = useState<SimulationState>(defaultState);
-  const [isLiveMode, setIsLiveMode] = useState(false);
+  const [isLiveMode, setIsLiveMode] = useState(true);
   const [wsConnected, setWsConnected] = useState(false);
   
   // Data connection for LIVE mode (polling the ESP32)
