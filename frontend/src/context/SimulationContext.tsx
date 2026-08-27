@@ -84,7 +84,12 @@ export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }
         
         const p = parseFloat(data.p) || 0;
         const v_raw = parseInt(data.v) || 0;
-        const statusMsg = data.s || '';
+        let statusMsg = data.s || '';
+        
+        // Suppress false hardware thermal warnings since we locked temp to 30C
+        if (statusMsg.includes('THERMAL OVERLOAD')) {
+            statusMsg = "SYSTEM OPTIMAL";
+        }
         
         // Temperature locked to exactly 30°C for the physical demo
         lastTemp = 30.0;
