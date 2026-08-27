@@ -69,6 +69,8 @@ export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }
     // Hardcoded IP of the Primary ESP32 SoftAP
     const baseIp = 'http://192.168.4.1';
     
+    let lastTemp = 25.0;
+
     const interval = setInterval(async () => {
       try {
         const response = await fetch(`${baseIp}/data`);
@@ -80,30 +82,32 @@ export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }
         setWsConnected(true);
         const data = await response.json();
         
-        // Real Data format from SmartBelt.ino: {"p": 2.5, "t": 4095, "v": 1, "s": "WARNING: THERMAL OVERLOAD"}
         const p = parseFloat(data.p) || 0;
         const t_raw = parseInt(data.t) || 0;
         const v_raw = parseInt(data.v) || 0;
         const statusMsg = data.s || '';
         
-        // Convert raw temp (0-4095) to celsius approximation
-        // 0 = 20C, 4095 = 90C
-        const tempC = 20 + (t_raw / 4095.0) * 70;
+        // Temperature Smoothing Filter (Removes random jumping from analog noise)
+        // Maps 0-4095 to an industrial baseline (22C - 85C)
+        const rawTempC = 22 + (t_raw / 4095.0) * 63;
+        lastTemp = (lastTemp * 0.8) + (rawTempC * 0.2); // Low-pass filter for extreme stability
         
-        // Use the raw period 'p' directly for kinematics, use v_raw for raw vibration hits
-        const vib = (v_raw === 1) ? 25.0 : p * 10; // Simple mapping for display purposes if v_raw is high
+        // Fast Kinematic Reaction
+        const vib = (v_raw === 1) ? 35.0 : p * 10;
         
-        // Calculate Health and Risk strictly from real sensor state
-        const risk = (t_raw > 2500 || statusMsg.includes('WARNING') || statusMsg.includes('CRITICAL')) ? 85 : 15;
+        // Sensor Fusion: Trigger Vision AI detection if physical sensors detect anomaly!
+        const hasAnomaly = (lastTemp > 50 || vib > 30 || statusMsg.includes('WARNING') || statusMsg.includes('CRITICAL'));
+        const risk = hasAnomaly ? 85 : 12;
         const health = 100 - risk;
         
         setState(s => ({
           ...s,
           jointInterval: p,
-          temperature: tempC,
+          temperature: lastTemp,
           vibration: vib,
           beltHealth: health,
           ruptureRisk: risk,
+          visionDefects: hasAnomaly ? 1 : 0,
           alerts: statusMsg !== "SYSTEM OPTIMAL" ? [
              { id: Date.now().toString(), type: 'CRITICAL' as const, message: statusMsg, timestamp: new Date() },
              ...s.alerts
@@ -113,17 +117,8 @@ export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }
       } catch (err) {
         console.error("HTTP Polling error - Sensor Offline:", err);
         setWsConnected(false);
-        // Reset values to indicate offline
-        setState(s => ({
-          ...s,
-          temperature: 0,
-          vibration: 0,
-          beltHealth: 0,
-          ruptureRisk: 0,
-          jointInterval: 0
-        }));
       }
-    }, 500);
+    }, 150); // Ultra-fast 150ms polling to eliminate lag
 
     return () => clearInterval(interval);
   }, [isLiveMode]);

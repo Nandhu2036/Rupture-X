@@ -33,10 +33,10 @@ void loop() {
   server.handleClient();
   int vibState = digitalRead(VIB_PIN);
   
-  // Adjusted debounce for better accuracy
+  // Adjusted debounce for ultra-fast reaction
   if (vibState == HIGH) { 
     unsigned long now = millis();
-    if (now - lastBumpTime > 400) { // Lowered to 400ms for faster belts
+    if (now - lastBumpTime > 100) { // Lowered to 100ms for instantaneous reaction
       beltPeriod = (now - lastBumpTime) / 1000.0;
       lastBumpTime = now;
       if (beltPeriod > 2.5) { statusMsg = "CRITICAL: KINEMATIC ELONGATION"; } 
