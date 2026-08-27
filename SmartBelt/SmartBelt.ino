@@ -1,8 +1,8 @@
 #include <WiFi.h>
 #include <WebServer.h>
 
-const char* ssid = "CSE_LAB - I"; 
-const char* password = "cse@#747";
+const char* ssid = "RUPTURE-X"; 
+const char* password = "rupture123";
 
 WebServer server(80);
 

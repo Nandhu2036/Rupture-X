@@ -10,8 +10,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "CSE_LAB - I";
-const char *password = "cse@#747";
+const char *ssid = "RUPTURE-X";
+const char *password = "rupture123";
 
 void startCameraServer();
 void setupLedFlash();
