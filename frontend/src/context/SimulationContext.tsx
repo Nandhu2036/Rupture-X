@@ -105,7 +105,7 @@ export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }
           beltHealth: health,
           ruptureRisk: risk,
           alerts: statusMsg !== "SYSTEM OPTIMAL" ? [
-             { id: Date.now().toString(), type: 'CRITICAL', message: statusMsg, timestamp: new Date() },
+             { id: Date.now().toString(), type: 'CRITICAL' as const, message: statusMsg, timestamp: new Date() },
              ...s.alerts
           ].slice(0, 5) : s.alerts
         }));

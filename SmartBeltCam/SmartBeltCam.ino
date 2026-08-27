@@ -10,8 +10,8 @@
 // ===========================
 // Enter your WiFi credentials
 // ===========================
-const char *ssid = "SmartBelt_AI";
-const char *password = "hackathonwin";
+const char *ssid = "CSE_LAB - I";
+const char *password = "cse@#747";
 
 void startCameraServer();
 void setupLedFlash();
