@@ -69,7 +69,7 @@ export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }
     // Hardcoded IP of the Primary ESP32 SoftAP
     const baseIp = 'http://192.168.4.1';
     
-    let lastTemp = 25.0;
+    let lastTemp = 30.0;
 
     const interval = setInterval(async () => {
       try {
@@ -88,8 +88,8 @@ export const SimulationProvider: React.FC<{children: ReactNode}> = ({ children }
         const statusMsg = data.s || '';
         
         // Temperature Smoothing Filter (Removes random jumping from analog noise)
-        // Maps 0-4095 to an industrial baseline (22C - 85C)
-        const rawTempC = 22 + (t_raw / 4095.0) * 63;
+        // Baseline 30C, up to 70C for anomalies
+        const rawTempC = 30 + (t_raw / 4095.0) * 40;
         lastTemp = (lastTemp * 0.8) + (rawTempC * 0.2); // Low-pass filter for extreme stability
         
         // Fast Kinematic Reaction
