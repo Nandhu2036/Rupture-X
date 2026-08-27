@@ -4,7 +4,7 @@ import { Camera, Maximize2 } from 'lucide-react';
 import { clsx } from 'clsx';
 
 export const VisionPanel: React.FC = () => {
-  const { visionConfidence, visionDefects, isLiveMode } = useSimulation();
+  const { visionDefects, isLiveMode } = useSimulation();
   const hasDefect = visionDefects > 0;
 
   return (

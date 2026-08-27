@@ -78,8 +78,10 @@ void handleRoot() {
 }
 
 void handleData() {
+  server.sendHeader("Access-Control-Allow-Origin", "*");
   int tempValue = analogRead(TEMP_PIN);
+  int currentVib = digitalRead(VIB_PIN);
   if(tempValue > 2500) { statusMsg = "WARNING: THERMAL OVERLOAD"; }
-  String json = "{\"p\":" + String(beltPeriod) + ",\"t\":" + String(tempValue) + ",\"s\":\"" + statusMsg + "\"}";
+  String json = "{\"p\":" + String(beltPeriod) + ",\"t\":" + String(tempValue) + ",\"v\":" + String(currentVib) + ",\"s\":\"" + statusMsg + "\"}";
   server.send(200, "application/json", json);
 }
