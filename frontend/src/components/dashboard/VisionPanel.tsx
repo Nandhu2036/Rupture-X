@@ -23,19 +23,23 @@ export const VisionPanel: React.FC = () => {
       </div>
 
       <div className="relative flex-1 bg-black flex items-center justify-center overflow-hidden">
-        {/* Simple Camera noise/grain (only visible if stream fails or loading) */}
+        {/* Simple Camera noise/grain */}
         <div className="absolute inset-0 opacity-20 mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')] pointer-events-none z-10"></div>
         
-        {/* ACTUAL LIVE VIDEO STREAM FROM ESP32-CAM */}
+        {/* ACTUAL LIVE VIDEO STREAM */}
         <div className="w-full h-full relative overflow-hidden flex items-center justify-center">
            {isLiveMode ? (
-              <img 
-                src={import.meta.env.VITE_ESP32_STREAM_URL || "http://192.168.4.1:81/stream"} 
-                alt="ESP32-CAM Live Feed" 
+              <video 
+                autoPlay 
+                playsInline 
+                muted
                 className="w-full h-full object-cover"
-                onError={(e) => {
-                  (e.target as HTMLImageElement).style.display = 'none';
-                  document.getElementById('stream-error')?.classList.remove('hidden');
+                ref={(videoNode) => {
+                  if (videoNode && !videoNode.srcObject) {
+                    navigator.mediaDevices.getUserMedia({ video: true })
+                      .then(stream => { videoNode.srcObject = stream; })
+                      .catch(err => console.error("Webcam error:", err));
+                  }
                 }}
               />
            ) : (
@@ -49,10 +53,6 @@ export const VisionPanel: React.FC = () => {
                  )}
               </div>
            )}
-           
-           <div id="stream-error" className="hidden absolute inset-0 flex items-center justify-center text-status-red font-mono text-sm z-10 bg-black/80">
-              [STREAM DISCONNECTED - CHECK ESP32-CAM IP]
-           </div>
            
            {/* Defect Overlay (Works on top of the live video!) */}
            {hasDefect && (
@@ -71,7 +71,7 @@ export const VisionPanel: React.FC = () => {
 
         <div className="absolute bottom-6 left-6 text-xs text-white/70 space-y-1 font-mono z-20 bg-black/40 px-2 py-1 rounded">
           <div>CAM-01 {isLiveMode ? '[LIVE]' : '[DEMO]'}</div>
-          <div>FPS: {isLiveMode ? 'STREAM' : (hasDefect ? '16' : '30')}</div>
+          <div>FPS: {isLiveMode ? '30' : (hasDefect ? '16' : '30')}</div>
         </div>
 
         <div className="absolute bottom-6 right-6 z-20 bg-black/40 p-2 rounded-full cursor-pointer hover:bg-black/60 transition-colors">
